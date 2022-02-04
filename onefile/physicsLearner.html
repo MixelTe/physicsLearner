@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Physics Learner</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		html {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		body {
+			display: flex;
+			margin: 0px;
+			justify-content: center;
+			align-items: center;
+			/* min-height: 100%; */
+			flex-grow: 1;
+			--header-height--: 45px;
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		.page {
+			width: 100%;
+			min-height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+		.testBlock {
+			position: relative;
+			width: 100%;
+			max-width: 400px;
+			max-height: 100%;
+			overflow: auto;
+			/* min-height: 200px; */
+			background-color: aquamarine;
+			border: 2px solid green;
+			border-radius: 10px;
+			display: flex;
+			flex-direction: column;
+		}
+		.testBlock-title1-block {
+			overflow: auto;
+			margin-top: 30px;
+			flex-shrink: 1;
+		}
+		.testBlock-title2-block {
+			overflow: auto;
+			padding: 10px;
+			flex-shrink: 1;
+			min-height: 40px;
+		}
+		.testBlock-title1 {
+			font-size: xx-large;
+			text-align: center;
+			margin: 0px 10px 20px 10px;
+		}
+		.testBlock-title2 {
+			font-size: x-large;
+			text-align: center;
+			min-height: 30px;
+		}
+		.testBlock-controls {
+			min-height: 50px;
+			display: flex;
+    		justify-content: center;
+    		align-items: center;
+		}
+		.testBlock-OKbutton, .testBlock-NObutton {
+			outline: none;
+			/* height: 24px; */
+			/* width: 47px; */
+			padding: 0.4em 1em;
+			border: 1px solid gray;
+			border-radius: 4px 0px 0px 4px;
+		}
+		.testBlock-OKbutton {
+			border-left-width: 0px;
+			border-radius: 0px 4px 4px 0px;
+		}
+		.testBlock-OKbutton:active, .testBlock-NObutton:active {
+			box-shadow: inset 0px 0px 2px 0px black;
+		}
+		.testBlock-OKbutton:hover, .testBlock-NObutton:hover {
+			text-decoration: underline;
+		}
+		.btn-hidden {
+			display: none;
+		}
+		.btn-hidden ~ .testBlock-OKbutton {
+			border: 1px solid gray;
+			border-radius: 4px 4px 4px 4px;
+		}
+		.testBlock-lbl {
+			position: absolute;
+			top: 0px;
+			margin: 5px;
+			font-size: medium;
+		}
+		.testBlock-lbl-all {
+			right: 0px;
+		}
+
+		@media screen and (max-width: 550px), screen and (max-height: 550px) {
+			.testBlock {
+				min-width: 100%;
+				flex-grow: 1;
+				border: none;
+				border-radius: 0;
+				padding: 0.5em;
+				justify-content: center;
+			}
+			.testBlock-lbl {
+				top: 0.5rem;
+			}
+			.testBlock-lbl-all {
+				top: 0.5rem;
+				right: 0.5rem;
+			}
+		}
+	</style>
+	<style>
+		.formula {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			white-space: pre;
+			font-style: italic;
+			font-family: Georgia, 'Times New Roman', Times, serif;
+		}
+		.formula-fraction {
+			display: inline-table;
+		}
+		.formula-fraction tr:first-child td {
+			border-bottom: 0.1em solid currentColor
+		}
+		.formula-letter {
+			width: 1em;
+			height: 1em;
+			min-width: 1em;
+			min-height: 1em;
+		}
+		.formula-upper {
+			transform: translateX(-0.1em) scale(0.7) translateY(-0.3em);
+		}
+		.formula-lower {
+			transform: translateX(-0.1em) scale(0.7) translateY(0.3em);
+		}
+		.formula-sqrt {
+			position: relative;
+			border: 1px solid currentColor;
+			border-width: 1px 0 0 1px;
+			border-top-left-radius: 0.2em;
+			margin-left: 0.3em;
+		}
+		.formula-sqrt::after {
+			content: "";
+			position: absolute;
+			bottom: 0;
+			left: -0.4em;
+			width: 0.4em;
+			/* height: 0.3em; */
+			border: 1px solid currentColor;
+			border-width: 1px 0 0 0;
+			transform-origin: right;
+			transform: rotate(45deg);
+		}
+	</style>
+</head>
+<body>
+	<noscript style="font-size: x-large;">Если вы видите это, попробуете открыть в Google Chrome</noscript>
+    <script>
+"use strict";
+const SVGs = {
+    settings: {
+        viewBox: "0 0 24 24", paths: [
+            "m13.12 24h-2.24c-.757 0-1.396-.567-1.486-1.32l-.239-1.876c-.477-.155-.937-.346-1.374-.569l-1.494 1.161c-.606.469-1.459.415-1.985-.126l-1.575-1.575c-.537-.521-.591-1.374-.122-1.979l1.161-1.495c-.224-.437-.415-.897-.569-1.374l-1.88-.239c-.75-.092-1.317-.731-1.317-1.488v-2.24c0-.757.567-1.396 1.32-1.486l1.876-.239c.155-.477.346-.937.569-1.374l-1.16-1.494c-.47-.606-.415-1.46.127-1.986l1.575-1.575c.521-.537 1.375-.59 1.979-.122l1.494 1.162c.437-.223.897-.414 1.375-.569l.239-1.88c.09-.75.729-1.317 1.486-1.317h2.24c.757 0 1.396.567 1.486 1.32l.239 1.876c.478.155.938.346 1.375.569l1.494-1.161c.607-.469 1.459-.415 1.985.127l1.575 1.575c.537.521.591 1.374.122 1.979l-1.161 1.495c.224.437.415.897.569 1.374l1.88.239c.749.091 1.316.73 1.316 1.487v2.24c0 .757-.567 1.396-1.32 1.486l-1.876.239c-.155.477-.346.937-.569 1.374l1.161 1.494c.47.606.415 1.459-.127 1.985l-1.575 1.575c-.521.537-1.375.592-1.979.122l-1.495-1.161c-.437.224-.897.415-1.374.569l-.239 1.88c-.091.75-.73 1.317-1.487 1.317zm-5.39-4.86c.083 0 .168.021.244.063.551.308 1.148.556 1.774.736.192.055.333.219.358.417l.28 2.2c.03.251.247.444.494.444h2.24c.247 0 .464-.193.493-.439l.281-2.204c.025-.198.166-.362.358-.417.626-.18 1.223-.428 1.774-.736.175-.098.393-.081.55.042l1.75 1.36c.201.156.483.143.655-.034l1.585-1.585c.181-.176.195-.458.039-.66l-1.36-1.75c-.123-.158-.14-.375-.042-.55.308-.551.556-1.148.736-1.774.055-.192.219-.333.417-.358l2.2-.28c.251-.031.444-.248.444-.495v-2.24c0-.247-.193-.464-.439-.493l-2.204-.281c-.198-.025-.362-.166-.417-.358-.18-.626-.428-1.223-.736-1.774-.098-.175-.082-.392.042-.55l1.36-1.75c.157-.202.143-.484-.033-.654l-1.585-1.585c-.175-.182-.458-.196-.66-.039l-1.75 1.36c-.159.123-.376.14-.551.042-.549-.308-1.146-.555-1.774-.736-.192-.055-.333-.219-.358-.417l-.28-2.2c-.031-.252-.248-.445-.495-.445h-2.24c-.247 0-.464.193-.493.439l-.281 2.204c-.025.198-.166.362-.358.418-.628.18-1.225.428-1.774.735-.175.099-.392.081-.551-.041l-1.75-1.36c-.202-.157-.483-.143-.654.033l-1.585 1.586c-.181.176-.195.458-.039.66l1.36 1.75c.123.158.14.375.042.55-.309.551-.556 1.148-.736 1.774-.055.192-.219.333-.417.358l-2.2.28c-.251.03-.444.247-.444.494v2.24c0 .247.193.464.439.493l2.204.281c.198.025.362.166.417.358.18.626.428 1.223.736 1.774.098.175.082.392-.042.55l-1.36 1.75c-.157.202-.143.484.033.654l1.585 1.585c.175.181.456.195.66.039l1.75-1.36c.091-.068.199-.104.308-.104z",
+            "m12 17c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5zm0-9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4z"
+        ]
+    },
+    backArrow: {
+        viewBox: "0 0 459 459", paths: [
+            "M178.5,140.25v-102L0,216.75l178.5,178.5V290.7c127.5,0,216.75,40.8,280.5,130.05C433.5,293.25,357,165.75,178.5,140.25z"
+        ]
+    },
+};
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        var el = array[i];
+        array[i] = array[j];
+        array[j] = el;
+    }
+}
+function normalizeString(str) {
+    return str.toLowerCase().replace(/  +/g, ' ').trim();
+}
+function Body(children) {
+    children.forEach(ch => document.body.appendChild(ch));
+}
+function Svg(classes, viewBox, paths, clickListener) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", viewBox);
+    paths.forEach(d => {
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p.setAttribute("d", d);
+        svg.appendChild(p);
+    });
+    const div = Div(classes);
+    div.appendChild(svg);
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+    if (clickListener)
+        svg.addEventListener("click", clickListener);
+    return div;
+}
+function Label(classes, children, innerText, storeArray, index, fo) {
+    const label = initEl("label", classes, children, innerText, storeArray, index);
+    if (fo)
+        label.setAttribute("for", fo);
+    return label;
+}
+function Select_Option(classes, innerText, value, storeArray, index) {
+    const option = initEl("option", classes, undefined, innerText, storeArray, index);
+    if (value != undefined)
+        option.value = value;
+    return option;
+}
+function Select(classes, children, storeArray, index) {
+    return initEl("select", classes, children, undefined, storeArray, index);
+}
+function Div(classes, children, innerText, storeArray, index) {
+    return initEl("div", classes, children, innerText, storeArray, index);
+}
+function Table(classes, children, storeArray, index) {
+    return initEl("table", classes, children, undefined, storeArray, index);
+}
+function TR(classes, children, storeArray, index) {
+    return initEl("tr", classes, children, undefined, storeArray, index);
+}
+function TD(classes, children, storeArray, index) {
+    return initEl("td", classes, children, undefined, storeArray, index);
+}
+function Span(classes, children, innerText, storeArray, index) {
+    return initEl("span", classes, children, innerText, storeArray, index);
+}
+function H1(classes, children, innerText, storeArray, index) {
+    return initEl("h1", classes, children, innerText, storeArray, index);
+}
+function CheckBox(classes, checked, storeArray, index, id, onChange) {
+    const input = initEl("input", classes, undefined, undefined, storeArray, index);
+    input.type = "checkbox";
+    if (checked)
+        input.checked = checked;
+    if (id)
+        input.setAttribute("id", id);
+    if (onChange)
+        input.addEventListener("change", onChange.bind(undefined, input));
+    return input;
+}
+function Input(classes, type, placeholder, storeArray, index, id, onChange) {
+    const input = initEl("input", classes, undefined, undefined, storeArray, index);
+    if (type)
+        input.type = type;
+    if (placeholder)
+        input.placeholder = placeholder;
+    if (id)
+        input.setAttribute("id", id);
+    if (onChange)
+        input.addEventListener("change", onChange.bind(undefined, input));
+    return input;
+}
+function Button(classes, innerText, clickListener, storeArray, index) {
+    const button = initEl("button", classes, undefined, innerText, storeArray, index);
+    if (clickListener)
+        button.addEventListener("click", clickListener.bind(undefined, button));
+    return button;
+}
+function initEl(tagName, classes, children, innerText, storeArray, index) {
+    const el = document.createElement(tagName);
+    if (classes) {
+        if (typeof classes == "string")
+            el.classList.add(classes);
+        else
+            classes.forEach(cs => el.classList.add(cs));
+    }
+    if (innerText)
+        el.innerText = innerText;
+    if (children)
+        children.forEach(ch => el.appendChild(ch));
+    if (storeArray)
+        storeArray[index || 0] = el;
+    return el;
+}
+
+    </script>
+	<script>
+"use strict";
+class Formula {
+    question;
+    formula;
+    text = "";
+    textQ = "";
+    constructor(question, formula) {
+        if (question instanceof FormulaBuilder) {
+            this.question = question.html();
+            this.textQ = question.text;
+        }
+        else {
+            this.question = question;
+            this.textQ = question;
+        }
+        if (formula instanceof FormulaBuilder) {
+            this.formula = formula.html();
+            this.text = formula.text;
+        }
+        else {
+            this.formula = formula;
+            this.text = formula;
+        }
+    }
+}
+class FormulaBuilder {
+    body = Div("formula");
+    text = "";
+    a(fb) {
+        this.body.appendChild(fb.body);
+        this.text += fb.text;
+        return this;
+    }
+    t(text) {
+        this.body.appendChild(Span([], [], text));
+        this.text += text;
+        return this;
+    }
+    f(top, bottom) {
+        const f = Table("formula-fraction", [
+            TR([], [TD([], [top.body])]),
+            TR([], [TD([], [bottom.body])]),
+        ]);
+        this.body.appendChild(f);
+        this.text += `(${top.text})/(${bottom.text})`;
+        return this;
+    }
+    l(letter) {
+        const letterEl = formulaLetters[letter];
+        if (letterEl.d && letterEl.vb) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.classList.add("formula-letter");
+            svg.style.transform = `translateY(${letterEl.dy}em)`;
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", letterEl.d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "black");
+            path.setAttribute("stroke-width", "0.4");
+            path.setAttribute("stroke-linecap", "round");
+            svg.setAttribute("viewBox", letterEl.vb);
+            svg.appendChild(path);
+            this.body.appendChild(svg);
+        }
+        else {
+            this.t(letterEl.ch);
+        }
+        this.text += letterEl.ch;
+        return this;
+    }
+    up(fb) {
+        this.body.appendChild(Span("formula-upper", [fb.body]));
+        if (fb.text.length == 1)
+            this.text += "^" + fb.text;
+        else
+            this.text += "^(" + fb.text + ")";
+        return this;
+    }
+    lw(fb) {
+        this.body.appendChild(Span("formula-lower", [fb.body]));
+        if (fb.text.length == 1)
+            this.text += "_" + fb.text;
+        else
+            this.text += "_(" + fb.text + ")";
+        return this;
+    }
+    sq(fb) {
+        this.body.appendChild(Span("formula-sqrt", [fb.body]));
+        this.text += "sqrt(" + fb.text + ")";
+        return this;
+    }
+    br() {
+        this.body.appendChild(document.createElement("br"));
+    }
+    table(rows) {
+        const f = Table("formula-table");
+        this.body.appendChild(f);
+        for (const el of rows) {
+            f.appendChild(TR([], [TD([], [el.body])]));
+            this.text += el.text + "\n";
+        }
+        return this;
+    }
+    html() {
+        return this.body.outerHTML;
+    }
+}
+function FB(text) {
+    if (text)
+        return new FormulaBuilder().t(text);
+    return new FormulaBuilder();
+}
+const formulaLetters = {
+    "V": { ch: "ν", dy: 0, vb: "-3 -5 6 5", d: "M-2.718-3.761C-2.392-4.783-1.907-4.804-1.528-3.993L0 0 1.526-3.982C1.884-4.741 2.41-4.709 2.715-3.719" },
+    "p": { ch: "ρ", dy: 0, vb: "0 -5 5 5", d: "M.283-1.392C.43-.444 1.294-.065 1.82-1.234L2.663-3.961A1 1 0 112.705-3.256" },
+    "m": { ch: "μ", dy: 0.1, vb: "0 -4.5 5 4.5", d: "M.256-.799C.272-.085.878.16 1.308-1.26L1.957-3.772C1.993-3.92 2.039-3.914 2.053-3.826L2.513-1.92Q2.69-1.114 2.982-1.789L3.925-3.855C4.024-4.039 4.029-3.891 4.032-3.856L4.202-1.805Q4.294-1.037 4.862-1.582" },
+    "d": { ch: "Δ", dy: 0, vb: null, d: null },
+    "P": { ch: "π", dy: 0, vb: null, d: null },
+    "n": { ch: "η", dy: 0, vb: null, d: null },
+    "l": { ch: "λ", dy: 0, vb: null, d: null },
+};
+function createFormula(formula) {
+    const fb = new FormulaBuilder();
+    let bracketsOpen = 0;
+    let bracketsStart = 0;
+    let fractionTop = null;
+    for (let i = 0; i < formula.length; i++) {
+        const ch = formula[i];
+        if (ch == "{") {
+            if (bracketsOpen == 0)
+                bracketsStart = i;
+            bracketsOpen += 1;
+        }
+        else if (ch == "}") {
+            bracketsOpen -= 1;
+            if (bracketsOpen == 0) {
+                const inBrackets = formula.slice(bracketsStart + 1, i);
+                if (i + 1 < formula.length && formula[i + 1] == "/") {
+                    fractionTop = createFormula(inBrackets);
+                    i++;
+                }
+                else if (fractionTop) {
+                    const fractionBottom = createFormula(inBrackets);
+                    fb.f(fractionTop, fractionBottom);
+                }
+                else {
+                    if (bracketsStart - 1 >= 0) {
+                        if (formula[bracketsStart - 1] == "_")
+                            fb.lw(createFormula(inBrackets));
+                        else if (formula[bracketsStart - 1] == "^")
+                            fb.up(createFormula(inBrackets));
+                        else if (formula[bracketsStart - 1] == "\\")
+                            fb.sq(createFormula(inBrackets));
+                        else
+                            fb.a(createFormula(inBrackets));
+                    }
+                    else {
+                        fb.a(createFormula(inBrackets));
+                    }
+                }
+            }
+        }
+        if (bracketsOpen > 0 || ch == "{" || ch == "}" || ch == "\\")
+            continue;
+        if (ch == "_") {
+            if (formula[i + 1] != "{")
+                fb.lw(FB(formula[++i]));
+        }
+        else if (ch == "^") {
+            if (formula[i + 1] != "{")
+                fb.up(FB(formula[++i]));
+        }
+        else if (ch == "'") {
+            fb.l(formula[++i]);
+        }
+        else if (ch == "\n") {
+            fb.br();
+        }
+        else if (ch == "*") {
+            fb.t("×");
+        }
+        else {
+            fb.t(ch);
+        }
+    }
+    return fb;
+}
+
+    </script>
+	<script>
+"use strict";
+const formulas = [
+    new Formula("Скорость", FB().l("V").t(" = ").f(FB("S"), FB("t"))),
+    new Formula("Пройденный путь", FB("S = ").l("V").t("t")),
+    new Formula("Время", FB("t = ").f(FB("S"), FB().l("V"))),
+    new Formula("Плотность", FB().l("p").t(" = ").f(FB("m"), FB("V"))),
+    new Formula("Масса", FB("m = ").l("p").t("V")),
+    new Formula("Объём", FB("V = ").f(FB("m"), FB().l("p"))),
+    new Formula(FB("1").f(FB("г"), FB("см").up(FB("3"))).t(" = ?"), FB("1").f(FB("г"), FB("см").up(FB("3"))).t(" = 1000").f(FB("кг"), FB("м").up(FB("3")))),
+    new Formula("Сила тяжести", createFormula("F_{тяж} = mg")),
+    new Formula("Сила упругости", createFormula("F_{упр} = k'dl")),
+    new Formula("Сила трения", createFormula("F_{тр} = 'mN = 'mmg")),
+    new Formula("Вес", createFormula("P = mg")),
+    new Formula("Работа, механическая", createFormula("A = FS")),
+    new Formula("Мощность", createFormula("N = {A}/{t}")),
+    new Formula("Условие равновесия рычага", createFormula("{F_1}/{F_2} = {l_2}/{l_1}")),
+    new Formula("Момент силы", createFormula("M = Fl")),
+    new Formula("Период колебания математического маятника", createFormula("2'P\\{{l}/{g}}")),
+    new Formula("Последовательное соединение", FB().table([createFormula("I = I_1 = I_2"), createFormula("U = U_1 + U_2"), createFormula("R = R_1 + R_2")])),
+    new Formula("Параллельное соединение", FB().table([createFormula("I = I_1 + I_2"), createFormula("{1}/{R} = {1}/{R_1} + {1}/{R_2}"), createFormula("U = U_1 = U_2")])),
+    new Formula("Работа тока", createFormula("A = Ult")),
+    new Formula("Мощность тока", createFormula("P = IU = {U^2}/{R} = I^2R")),
+    new Formula("Закон Джоуля-Ленца", createFormula("Q = I^2R'dt")),
+    new Formula("Коэфициент полезного действия", createFormula("'n = {A_п}/{A_з} * 100%")),
+    new Formula("Оптическая сила линзы (диоптрия)", createFormula("{1}/{d} + {1}/{f} = {1}/{F} = D")),
+    new Formula("Координата (x)", createFormula("x = x_0 + S_x")),
+    new Formula("Перемещение", createFormula("S_x = x - x_0")),
+    new Formula("Ускорение", createFormula("a = {'V - 'V_0}/{t}")),
+    new Formula("Перемещение 1 формула", createFormula("S_x = V_{0x}t + {a_xt^2}/{2}")),
+    new Formula("Перемещение 2 формула", createFormula("S_x = {'V^2_x - 'V^2_{0x}}/{2a_x}")),
+    new Formula("Перемещение 3 формула", createFormula("S_x = {'V_x + 'V_{0x}}/{2}t")),
+    new Formula("Условие равновесия рычага", createFormula("M_1 = M_2")),
+    new Formula("Архимедова сила", createFormula("F_А = 'pgV_т")),
+    new Formula("Давление", createFormula("p = {F}/{S}")),
+    new Formula("Давление жидкости", createFormula("p_ж = 'pgh")),
+    new Formula("Кинетическая энергия", createFormula("E_к = {m'V^2}/{2}")),
+    new Formula("Потенциальная энергия", createFormula("E_p = mgh")),
+    new Formula("Потенциальная энергия деформированного тела", createFormula("E_п = {kx^2}/{2}")),
+    new Formula("Энергия нагревания тела", createFormula("Q = cm(t_2 - t_1) = cm'dt")),
+    new Formula("Энергия сгорания тела", createFormula("Q = qm")),
+    new Formula("Энергия плавления тела", createFormula("Q = 'lm")),
+    new Formula("Энергия парообразования", createFormula("Q = Lm")),
+    new Formula("Сила тока", createFormula("I = {q}/{t}")),
+    new Formula("Напряжение", createFormula("U = {A}/{|q|}")),
+    new Formula("Сопротивление", createFormula("R = 'p{l}/{S}")),
+    new Formula("Закон Ома для участка цепи", createFormula("I = {U}/{R}")),
+];
+
+    </script>
+	<script>
+"use strict";
+let curTester = null;
+function reStart() {
+    curTester = new Tester(formulas);
+}
+function onOKButton() {
+    if (curTester != null)
+        curTester.onOKButton();
+}
+function onNoButton() {
+    if (curTester != null)
+        curTester.onNOButton();
+}
+function onFormulaCopy(e) {
+    if (curTester != null) {
+        if (e.clipboardData) {
+            const text = allEls.answer.title;
+            e.clipboardData.setData('text/plain', text);
+            e.preventDefault();
+        }
+    }
+}
+function onQuestionCopy(e) {
+    if (curTester != null) {
+        if (e.clipboardData) {
+            const text = allEls.question.title;
+            e.clipboardData.setData('text/plain', text);
+            e.preventDefault();
+        }
+    }
+}
+class Tester {
+    formulas;
+    curFormula = 0;
+    correct = 0;
+    state = "none";
+    constructor(formulas) {
+        this.formulas = formulas;
+        this.init(formulas);
+        this.showQuestion();
+        this.checkAnswer();
+    }
+    init(words) {
+        this.curFormula = 0;
+        this.correct = 0;
+        this.state = "none";
+        this.formulas = words;
+        shuffle(this.formulas);
+    }
+    setLabels() {
+        allEls.all.innerText = `${this.curFormula} / ${this.formulas.length}`;
+        allEls.correct.innerText = `Правильно: ${this.correct} / ${this.formulas.length}`;
+    }
+    showQuestion() {
+        if (this.curFormula >= this.formulas.length) {
+            this.showResult();
+            return;
+        }
+        allEls.question.innerHTML = this.formulas[this.curFormula].question;
+        allEls.question.title = this.formulas[this.curFormula].textQ;
+        allEls.answer.innerHTML = "";
+        allEls.button_no.classList.add("btn-hidden");
+        this.setLabels();
+        this.state = "question";
+        allEls.button_ok.innerText = "Ответ";
+        allEls.button_ok.focus();
+    }
+    checkAnswer() {
+        const curFormula = this.formulas[this.curFormula];
+        this.curFormula += 1;
+        allEls.answer.innerHTML = curFormula.formula;
+        allEls.answer.title = curFormula.text;
+        this.setLabels();
+        this.state = "answer";
+        allEls.button_no.classList.remove("btn-hidden");
+        allEls.button_no.innerText = "Ошибся";
+        allEls.button_ok.innerText = "Верно";
+        allEls.button_ok.focus();
+    }
+    showResult() {
+        allEls.button_no.classList.add("btn-hidden");
+        allEls.question.innerText = "Результат";
+        allEls.answer.innerText = `Правильно: ${Math.round(this.correct / this.formulas.length * 100)}%`;
+        allEls.button_ok.innerText = "Ещё раз";
+        this.state = "result";
+    }
+    restart() {
+        this.init(this.formulas);
+        this.showQuestion();
+    }
+    onOKButton() {
+        switch (this.state) {
+            case "question":
+                this.checkAnswer();
+                break;
+            case "answer":
+                this.correct += 1;
+                this.showQuestion();
+                break;
+            case "result":
+                this.restart();
+                break;
+            default:
+                console.error("switch default");
+                break;
+        }
+    }
+    onNOButton() {
+        if (this.state == "answer")
+            this.showQuestion();
+    }
+}
+
+    </script>
+	<script>
+"use strict";
+const allEls = init();
+allEls.answer.addEventListener("copy", onFormulaCopy);
+allEls.question.addEventListener("copy", onQuestionCopy);
+reStart();
+function init() {
+    const els = [];
+    document.body.innerHTML = "";
+    Body([
+        Div(["page", "page-1"], [
+            Div("testBlock", [
+                Div("testBlock-title1-block", [
+                    Div("testBlock-title1", [], "Some text", els, 0),
+                ]),
+                Div("testBlock-title2-block", [
+                    Div("testBlock-title2", [], "Some text", els, 1),
+                ]),
+                Div("testBlock-controls", [
+                    Button("testBlock-NObutton", "NO", onNoButton, els, 2),
+                    Button("testBlock-OKbutton", "OK", onOKButton, els, 3),
+                ]),
+                Div(["testBlock-lbl", "testBlock-lbl-correct"], [], "Correct: ## / ##", els, 4),
+                Div(["testBlock-lbl", "testBlock-lbl-all"], [], "## / ##", els, 5),
+            ]),
+        ])
+    ]);
+    els[4].spellcheck = false;
+    return {
+        question: els[0],
+        answer: els[1],
+        button_no: els[2],
+        button_ok: els[3],
+        correct: els[4],
+        all: els[5],
+    };
+}
+
+    </script>
+</body>
+</html>

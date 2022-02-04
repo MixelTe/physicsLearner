@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Physics Learner</title>
+	<script src="out/functions.js" defer></script>
+	<script src="out/formula.js" defer></script>
+	<script src="out/formulas.js" defer></script>
+	<script src="out/tester.js" defer></script>
+	<script src="out/main.js" defer></script>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		html {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		body {
+			display: flex;
+			margin: 0px;
+			justify-content: center;
+			align-items: center;
+			/* min-height: 100%; */
+			flex-grow: 1;
+			--header-height--: 45px;
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		.page {
+			width: 100%;
+			min-height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+		.testBlock {
+			position: relative;
+			width: 100%;
+			max-width: 400px;
+			max-height: 100%;
+			overflow: auto;
+			/* min-height: 200px; */
+			background-color: aquamarine;
+			border: 2px solid green;
+			border-radius: 10px;
+			display: flex;
+			flex-direction: column;
+		}
+		.testBlock-title1-block {
+			overflow: auto;
+			margin-top: 30px;
+			flex-shrink: 1;
+		}
+		.testBlock-title2-block {
+			overflow: auto;
+			padding: 10px;
+			flex-shrink: 1;
+			min-height: 40px;
+		}
+		.testBlock-title1 {
+			font-size: xx-large;
+			text-align: center;
+			margin: 0px 10px 20px 10px;
+		}
+		.testBlock-title2 {
+			font-size: x-large;
+			text-align: center;
+			min-height: 30px;
+		}
+		.testBlock-controls {
+			min-height: 50px;
+			display: flex;
+    		justify-content: center;
+    		align-items: center;
+		}
+		.testBlock-OKbutton, .testBlock-NObutton {
+			outline: none;
+			/* height: 24px; */
+			/* width: 47px; */
+			padding: 0.4em 1em;
+			border: 1px solid gray;
+			border-radius: 4px 0px 0px 4px;
+		}
+		.testBlock-OKbutton {
+			border-left-width: 0px;
+			border-radius: 0px 4px 4px 0px;
+		}
+		.testBlock-OKbutton:active, .testBlock-NObutton:active {
+			box-shadow: inset 0px 0px 2px 0px black;
+		}
+		.testBlock-OKbutton:hover, .testBlock-NObutton:hover {
+			text-decoration: underline;
+		}
+		.btn-hidden {
+			display: none;
+		}
+		.btn-hidden ~ .testBlock-OKbutton {
+			border: 1px solid gray;
+			border-radius: 4px 4px 4px 4px;
+		}
+		.testBlock-lbl {
+			position: absolute;
+			top: 0px;
+			margin: 5px;
+			font-size: medium;
+		}
+		.testBlock-lbl-all {
+			right: 0px;
+		}
+
+		@media screen and (max-width: 550px), screen and (max-height: 550px) {
+			.testBlock {
+				min-width: 100%;
+				flex-grow: 1;
+				border: none;
+				border-radius: 0;
+				padding: 0.5em;
+				justify-content: center;
+			}
+			.testBlock-lbl {
+				top: 0.5rem;
+			}
+			.testBlock-lbl-all {
+				top: 0.5rem;
+				right: 0.5rem;
+			}
+		}
+	</style>
+	<style>
+		.formula {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			white-space: pre;
+			font-style: italic;
+			font-family: Georgia, 'Times New Roman', Times, serif;
+		}
+		.formula-fraction {
+			display: inline-table;
+		}
+		.formula-fraction tr:first-child td {
+			border-bottom: 0.1em solid currentColor
+		}
+		.formula-letter {
+			width: 1em;
+			height: 1em;
+			min-width: 1em;
+			min-height: 1em;
+		}
+		.formula-upper {
+			transform: translateX(-0.1em) scale(0.7) translateY(-0.3em);
+		}
+		.formula-lower {
+			transform: translateX(-0.1em) scale(0.7) translateY(0.3em);
+		}
+		.formula-sqrt {
+			position: relative;
+			border: 1px solid currentColor;
+			border-width: 1px 0 0 1px;
+			border-top-left-radius: 0.2em;
+			margin-left: 0.3em;
+		}
+		.formula-sqrt::after {
+			content: "";
+			position: absolute;
+			bottom: 0;
+			left: -0.4em;
+			width: 0.4em;
+			/* height: 0.3em; */
+			border: 1px solid currentColor;
+			border-width: 1px 0 0 0;
+			transform-origin: right;
+			transform: rotate(45deg);
+		}
+	</style>
+</head>
+<body>
+	<noscript style="font-size: x-large;">Если вы видите это, попробуете открыть в Google Chrome</noscript>
+</body>
+</html>
