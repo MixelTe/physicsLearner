@@ -48,7 +48,6 @@ class Tester
 		this.formulas = formulas;
 		this.init(formulas);
 		this.showQuestion();
-		this.checkAnswer();
 	}
 	private init(words: Formula[])
 	{
