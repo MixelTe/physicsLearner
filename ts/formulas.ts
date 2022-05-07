@@ -16,7 +16,7 @@ const formulas = [
 	new Formula("Момент силы", createFormula("M = Fl")),
 	new Formula("Период колебания математического маятника", createFormula("2'P\\{{l}/{g}}")),
 	new Formula("Последовательное соединение", FB().table([createFormula("I = I_1 = I_2"), createFormula("U = U_1 + U_2"), createFormula("R = R_1 + R_2")])),
-	new Formula("Параллельное соединение", FB().table([createFormula("I = I_1 + I_2"), createFormula("{1}/{R} = {1}/{R_1} + {1}/{R_2}"), createFormula("U = U_1 = U_2")])),
+	new Formula("Параллельное соединение", FB().table([createFormula("I = I_1 + I_2"), createFormula("U = U_1 = U_2"), createFormula("{1}/{R} = {1}/{R_1} + {1}/{R_2}")])),
 	new Formula("Работа тока", createFormula("A = UIt")),
 	new Formula("Мощность тока", createFormula("P = IU = {U^2}/{R} = I^2R")),
 	new Formula("Закон Джоуля-Ленца", createFormula("Q = I^2R'dt")),

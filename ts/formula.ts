@@ -78,12 +78,12 @@ class FormulaBuilder
 			svg.setAttribute("viewBox", letterEl.vb);
 			svg.appendChild(path);
 			this.body.appendChild(svg);
+			this.text += letterEl.ch;
 		}
 		else
 		{
 			this.t(letterEl.ch);
 		}
-		this.text += letterEl.ch;
 		return this;
 	}
 	public up(fb: FormulaBuilder)

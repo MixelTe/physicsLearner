@@ -1,6 +1,7 @@
 const allEls = init();
 allEls.answer.addEventListener("copy", onFormulaCopy);
 allEls.question.addEventListener("copy", onQuestionCopy);
+setupFlist();
 reStart();
 
 
@@ -24,10 +25,15 @@ function init()
 				Div(["testBlock-lbl", "testBlock-lbl-correct"], [], "Correct: ## / ##", els, 4),
 				Div(["testBlock-lbl", "testBlock-lbl-all"], [], "## / ##", els, 5),
 			]),
-		])
+			Button("btn-list", "", onFlistOpen),
+			Div("flist", [
+				Div("flist-body", [
+					Button("flist-close", "✖", onFlistClose),
+					Div("flist-content", [], undefined, els, 7),
+				])
+			], undefined, els, 6)
+		]),
 	]);
-
-	els[4].spellcheck = false;
 
 	return {
 		question: <HTMLDivElement>els[0],
@@ -36,6 +42,8 @@ function init()
 		button_ok: <HTMLButtonElement>els[3],
 		correct: <HTMLDivElement>els[4],
 		all: <HTMLDivElement>els[5],
+		flist: <HTMLDivElement>els[6],
+		flist_content: <HTMLDivElement>els[7],
 	}
 }
 
