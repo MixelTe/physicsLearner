@@ -47,7 +47,7 @@ class Tester
 	{
 		this.formulas = formulas;
 		this.init(formulas);
-		this.showQuestion();
+		this.showQuestion(true);
 	}
 	private init(words: Formula[])
 	{
@@ -62,21 +62,38 @@ class Tester
 		allEls.all.innerText = `${this.curFormula} / ${this.formulas.length}`
 		allEls.correct.innerText = `Правильно: ${this.correct} / ${this.formulas.length}`
 	}
-	private showQuestion()
+	private showQuestion(disableAnim = false)
 	{
-		if (this.curFormula >= this.formulas.length)
+		const f = () =>
 		{
-			this.showResult();
-			return;
+			if (this.curFormula >= this.formulas.length)
+			{
+				this.showResult();
+				return;
+			}
+			allEls.question.innerHTML = this.formulas[this.curFormula].question;
+			allEls.question.title = this.formulas[this.curFormula].textQ;
+			allEls.answer.innerHTML = "";
+			allEls.button_no.classList.add("btn-hidden");
+			this.setLabels();
+			this.state = "question";
+			allEls.button_ok.innerText = "Ответ";
+			allEls.button_ok.focus();
 		}
-		allEls.question.innerHTML = this.formulas[this.curFormula].question;
-		allEls.question.title = this.formulas[this.curFormula].textQ;
-		allEls.answer.innerHTML = "";
-		allEls.button_no.classList.add("btn-hidden");
-		this.setLabels();
-		this.state = "question";
-		allEls.button_ok.innerText = "Ответ";
-		allEls.button_ok.focus();
+		if (disableAnim)
+		{
+			f();
+		}
+		else
+		{
+
+			allEls.textblock.classList.add("testBlock-anim");
+			setTimeout(f, 200)
+			setTimeout(() =>
+			{
+				allEls.textblock.classList.remove("testBlock-anim");
+			}, 400);
+		}
 	}
 	private checkAnswer()
 	{

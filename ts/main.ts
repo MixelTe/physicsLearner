@@ -24,7 +24,7 @@ function init()
 				]),
 				Div(["testBlock-lbl", "testBlock-lbl-correct"], [], "Correct: ## / ##", els, 4),
 				Div(["testBlock-lbl", "testBlock-lbl-all"], [], "## / ##", els, 5),
-			]),
+			], undefined, els, 8),
 			Button("btn-list", "", onFlistOpen),
 			Div("flist", [
 				Div("flist-body", [
@@ -44,6 +44,7 @@ function init()
 		all: <HTMLDivElement>els[5],
 		flist: <HTMLDivElement>els[6],
 		flist_content: <HTMLDivElement>els[7],
+		textblock: <HTMLDivElement>els[8],
 	}
 }
 

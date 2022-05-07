@@ -51,6 +51,24 @@
 			border-radius: 10px;
 			display: flex;
 			flex-direction: column;
+			transform-style: preserve-3d;
+		}
+		.testBlock-anim {
+			animation: testBlock-anim 400ms;
+		}
+		@keyframes testBlock-anim {
+			0% {
+				transform: rotateX(0deg);
+			}
+			50% {
+				transform: rotateX(90deg);
+			}
+			50.1% {
+				transform: rotateX(270deg);
+			}
+			100% {
+				transform: rotateX(360deg);
+			}
 		}
 		.testBlock-title1-block {
 			overflow: auto;
