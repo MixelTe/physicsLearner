@@ -34,15 +34,18 @@ class FormulaBuilder
 {
 	private body = Div("formula");
 	public text = "";
+	private prevEl: HTMLElement | SVGSVGElement | null = null;
 	public a(fb: FormulaBuilder)
 	{
+		this.prevEl = fb.body;
 		this.body.appendChild(fb.body);
 		this.text += fb.text;
 		return this;
 	}
 	public t(text: string)
 	{
-		this.body.appendChild(Span([], [], text));
+		this.prevEl = Span([], [], text);
+		this.body.appendChild(this.prevEl);
 		this.text += text;
 		return this;
 	}
@@ -52,6 +55,7 @@ class FormulaBuilder
 			TR([], [TD([], [top.body])]),
 			TR([], [TD([], [bottom.body])]),
 		])
+		this.prevEl = f;
 		this.body.appendChild(f);
 		this.text += `(${top.text})/(${bottom.text})`;
 		return this;
@@ -77,6 +81,7 @@ class FormulaBuilder
 			path.setAttribute("stroke-linecap", "round");
 			svg.setAttribute("viewBox", letterEl.vb);
 			svg.appendChild(path);
+			this.prevEl = svg;
 			this.body.appendChild(svg);
 			this.text += letterEl.ch;
 		}
@@ -88,31 +93,78 @@ class FormulaBuilder
 	}
 	public up(fb: FormulaBuilder)
 	{
-		this.body.appendChild(Span("formula-upper", [fb.body]));
+		if (this.prevEl?.classList.contains("formula-lower"))
+		{
+			this.prevEl.classList.remove("formula-lower");
+			this.prevEl.classList.add("formula-upper-lower");
+			this.prevEl.prepend(fb.body);
+		}
+		else
+		{
+			this.prevEl = Span("formula-upper", [fb.body]);
+			this.body.appendChild(this.prevEl);
+		}
 		if (fb.text.length == 1) this.text += "^" + fb.text;
 		else this.text += "^(" + fb.text + ")";
 		return this;
 	}
 	public lw(fb: FormulaBuilder)
 	{
-		this.body.appendChild(Span("formula-lower", [fb.body]));
+		if (this.prevEl?.classList.contains("formula-upper"))
+		{
+			this.prevEl.classList.remove("formula-upper");
+			this.prevEl.classList.add("formula-upper-lower");
+			this.prevEl.appendChild(fb.body);
+		}
+		else
+		{
+			this.prevEl = Span("formula-lower", [fb.body]);
+			this.body.appendChild(this.prevEl);
+		}
 		if (fb.text.length == 1) this.text += "_" + fb.text;
 		else this.text += "_(" + fb.text + ")";
 		return this;
 	}
 	public sq(fb: FormulaBuilder)
 	{
-		this.body.appendChild(Span("formula-sqrt", [fb.body]));
+		this.prevEl = Span("formula-sqrt", [fb.body]);
+		this.body.appendChild(this.prevEl);
 		this.text += "sqrt(" + fb.text + ")";
+		return this;
+	}
+	public vec(fb: FormulaBuilder)
+	{
+		this.prevEl = Span("formula-vec", [fb.body]);
+		this.body.appendChild(this.prevEl);
+		if (fb.text.length == 1) this.text += "→" + fb.text;
+		else this.text += "→(" + fb.text + ")";
+		return this;
+	}
+	public hat(fb: FormulaBuilder)
+	{
+		this.prevEl = Span("formula-hat", [fb.body]);
+		this.body.appendChild(this.prevEl);
+		if (fb.text.length == 1) this.text += "‾" + fb.text;
+		else this.text += "‾(" + fb.text + ")";
+		return this;
+	}
+	public sum(fb: FormulaBuilder)
+	{
+		const bottom = Span("formula-sum-bottom", [fb.body]);
+		this.prevEl = Span("formula-sum", [Span([], [], "Σ"), bottom]);
+		this.body.appendChild(this.prevEl);
+		this.text += "Σ(" + fb.text + ")";
 		return this;
 	}
 	public br()
 	{
-		this.body.appendChild(document.createElement("br"));
+		this.prevEl = document.createElement("br");
+		this.body.appendChild(this.prevEl);
 	}
 	public table(rows: FormulaBuilder[])
 	{
 		const f = Table("formula-table")
+		this.prevEl = f;
 		this.body.appendChild(f);
 		for (const el of rows)
 		{
@@ -142,6 +194,14 @@ const formulaLetters = {
 	"d": { ch: "Δ", dy: 0, vb: null, d: null },
 	"P": { ch: "π", dy: 0, vb: null, d: null },
 	"l": { ch: "λ", dy: 0, vb: null, d: null },
+	"w": { ch: "ω", dy: 0, vb: null, d: null },
+	"b": { ch: "β", dy: 0, vb: null, d: null },
+	"t": { ch: "τ", dy: 0, vb: null, d: null },
+	"s": { ch: "ϭ", dy: 0, vb: null, d: null },
+	"e": { ch: "ϵ", dy: 0, vb: null, d: null },
+	"E": { ch: "ε", dy: 0, vb: null, d: null },
+	"f": { ch: "φ", dy: 0, vb: null, d: null },
+	"O": { ch: "Ω", dy: 0, vb: null, d: null },
 }
 
 function createFormula(formula: string)
@@ -173,6 +233,7 @@ function createFormula(formula: string)
 				{
 					const fractionBottom = createFormula(inBrackets);
 					fb.f(fractionTop, fractionBottom);
+					fractionTop = null;
 				}
 				else
 				{
@@ -181,6 +242,8 @@ function createFormula(formula: string)
 						if (formula[bracketsStart - 1] == "_") fb.lw(createFormula(inBrackets));
 						else if (formula[bracketsStart - 1] == "^") fb.up(createFormula(inBrackets));
 						else if (formula[bracketsStart - 1] == "\\") fb.sq(createFormula(inBrackets));
+						else if (formula[bracketsStart - 1] == "&") fb.vec(createFormula(inBrackets));
+						else if (formula[bracketsStart - 1] == "#") fb.hat(createFormula(inBrackets));
 						else fb.a(createFormula(inBrackets));
 					}
 					else
@@ -199,9 +262,20 @@ function createFormula(formula: string)
 		{
 			if (formula[i + 1] != "{") fb.up(FB(formula[++i]))
 		}
+		else if (ch == "&")
+		{
+			if (formula[i + 1] != "{") fb.vec(FB(formula[++i]))
+		}
+		else if (ch == "#")
+		{
+			if (formula[i + 1] != "{") fb.hat(FB(formula[++i]))
+		}
 		else if (ch == "'")
 		{
-			fb.l(<any>formula[++i])
+			if (formulaLetters.hasOwnProperty(formula[i + 1]))
+				fb.l(<any>formula[++i])
+			else
+				fb.t(ch)
 		}
 		else if (ch == "\n")
 		{
@@ -210,6 +284,21 @@ function createFormula(formula: string)
 		else if (ch == "*")
 		{
 			fb.t("×")
+		}
+		else if (ch == "!" && formula[i + 1] == "=")
+		{
+			fb.t("≠")
+			i++
+		}
+		else if (ch == ">" && formula[i + 1] == "=")
+		{
+			fb.t("≥")
+			i++
+		}
+		else if (ch == "<" && formula[i + 1] == "=")
+		{
+			fb.t("≤")
+			i++
 		}
 		else
 		{
